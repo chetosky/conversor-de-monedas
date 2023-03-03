@@ -15,6 +15,8 @@ import java.awt.BorderLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.SwingConstants;
+import javax.swing.UnsupportedLookAndFeelException;
+
 import java.awt.Font;
 import javax.swing.AbstractListModel;
 import javax.swing.ListSelectionModel;
@@ -24,12 +26,18 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.event.ListSelectionListener;
+
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.Window.Type;
+import javax.swing.DefaultComboBoxModel;
 
 public class Pantalla {
 
@@ -41,6 +49,7 @@ public class Pantalla {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		FlatDarkLaf.setup();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -90,7 +99,7 @@ public class Pantalla {
 		listadoConversiones.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		listadoConversiones.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		listadoConversiones.setModel(new AbstractListModel() {
-			String[] values = new String[] { "Moneda", "Distancia", "Masa", "Volumen" };
+			String[] values = new String[] { "Moneda", "Temperatura", "Distancia", "Masa", "Volumen" };
 
 			public int getSize() {
 				return values.length;
@@ -156,6 +165,7 @@ public class Pantalla {
 		panel.add(labelDe);
 
 		JComboBox comboEntrada = new JComboBox();
+		comboEntrada.setModel(new DefaultComboBoxModel(new String[] {"USD-Dolar", "CRC-Colon", "EUR-Euro", "GBP-Libra", "JPY-Yen", "KRW-Won surcoreano"}));
 		sl_panel.putConstraint(SpringLayout.NORTH, comboEntrada, 2, SpringLayout.SOUTH, lblInstrucciones);
 		sl_panel.putConstraint(SpringLayout.WEST, comboEntrada, 24, SpringLayout.WEST, lblInstrucciones);
 		sl_panel.putConstraint(SpringLayout.EAST, comboEntrada, -100, SpringLayout.EAST, lblInstrucciones);
@@ -167,6 +177,7 @@ public class Pantalla {
 		panel.add(labelA);
 
 		JComboBox comboSalida = new JComboBox();
+		comboSalida.setModel(new DefaultComboBoxModel(new String[] {"USD-Dolar", "CRC-Colon", "EUR-Euro", "GBP-Libra", "JPY-Yen", "KRW-Won surcoreano"}));
 		sl_panel.putConstraint(SpringLayout.NORTH, comboSalida, 2, SpringLayout.SOUTH, lblInstrucciones);
 		sl_panel.putConstraint(SpringLayout.WEST, comboSalida, 140, SpringLayout.WEST, panel);
 		sl_panel.putConstraint(SpringLayout.EAST, comboSalida, -24, SpringLayout.EAST, panel);
@@ -176,6 +187,7 @@ public class Pantalla {
 		sl_panel.putConstraint(SpringLayout.NORTH, txtValor, 24, SpringLayout.SOUTH, comboEntrada);
 		sl_panel.putConstraint(SpringLayout.SOUTH, txtValor, -122, SpringLayout.SOUTH, panel);
 		txtValor.setFont(new Font("Tahoma", Font.BOLD, 16));
+		txtValor.setHorizontalAlignment(SwingConstants.CENTER);
 		sl_panel.putConstraint(SpringLayout.WEST, txtValor, 0, SpringLayout.WEST, lblInstrucciones);
 		sl_panel.putConstraint(SpringLayout.EAST, txtValor, 0, SpringLayout.EAST, lblInstrucciones);
 		panel.add(txtValor);
@@ -192,7 +204,6 @@ public class Pantalla {
 		sl_panel.putConstraint(SpringLayout.WEST, txtResultado, 0, SpringLayout.WEST, lblInstrucciones);
 		sl_panel.putConstraint(SpringLayout.SOUTH, txtResultado, -53, SpringLayout.SOUTH, panel);
 		sl_panel.putConstraint(SpringLayout.EAST, txtResultado, -20, SpringLayout.EAST, panel);
-		txtResultado.setBackground(new Color(255, 255, 255));
 		txtResultado.setFont(new Font("Tahoma", Font.BOLD, 16));
 		txtResultado.setHorizontalAlignment(SwingConstants.CENTER);
 		txtResultado.setEditable(false);
@@ -202,62 +213,51 @@ public class Pantalla {
 		// INICIO DE ACCIONES
 
 		// Cargando combos de acuerdo a la seleccion
-		
+
 		btnIniciar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Medidas medida = new Medidas();
+				Medidas medida = new Medidas((String) listadoConversiones.getSelectedValue());
 				String seleccion = (String) listadoConversiones.getSelectedValue();
+				String[] carga = { "0" };
 				txtResultado.setText("");
 				txtValor.setText("");
+				comboEntrada.removeAllItems();
+				comboSalida.removeAllItems();
 				switch (seleccion) {
 				case "Moneda":
-					comboEntrada.removeAllItems();
-					comboSalida.removeAllItems();
-					for (int i = 0; i < medida.getMoneda().length; i++) {
-						comboEntrada.addItem(medida.getMoneda()[i]);
-						comboSalida.addItem(medida.getMoneda()[i]);
-					}
+					carga = medida.getMoneda();
 					break;
 				case "Distancia":
-					comboEntrada.removeAllItems();
-					comboSalida.removeAllItems();
-					for (int i = 0; i < medida.getDistancia().length; i++) {
-						comboEntrada.addItem(medida.getDistancia()[i]);
-						comboSalida.addItem(medida.getDistancia()[i]);
-					}
+					carga = medida.getDistancia();
 					break;
 				case "Masa":
-					comboEntrada.removeAllItems();
-					comboSalida.removeAllItems();
-					for (int i = 0; i < medida.getMasa().length; i++) {
-						comboEntrada.addItem(medida.getMasa()[i]);
-						comboSalida.addItem(medida.getMasa()[i]);
-					}
+					carga = medida.getMasa();
 					break;
 				case "Volumen":
-					comboEntrada.removeAllItems();
-					comboSalida.removeAllItems();
-					for (int i = 0; i < medida.getVolumen().length; i++) {
-						comboEntrada.addItem(medida.getVolumen()[i]);
-						comboSalida.addItem(medida.getVolumen()[i]);
-					}
+					carga = medida.getVolumen();
+					break;
+				case "Temperatura":
+					carga = medida.getTemperatura();
 					break;
 				}
-
+				for (int i = 0; i < carga.length; i++) {
+					comboEntrada.addItem(carga[i]);
+					comboSalida.addItem(carga[i]);
+				}
 			}
 		});
 
 		btnConvertir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (Verificacion.verificaEntero(txtValor.getText())) {
-				double valor = Double.parseDouble(txtValor.getText());
-				String monedaEntrada = (String)comboEntrada.getSelectedItem();
-				String monedaSalida = (String)comboSalida.getSelectedItem();
-				double Resultado = Calculo.convertirMoneda(valor,monedaEntrada,monedaSalida);
-				txtResultado.setText("");
-				txtResultado.setText(String.valueOf(Math.round(Resultado*10000)/10000d));
-				} else	{
-					txtResultado.setText("ingrese solo valores numericos");
+					double valor = Double.parseDouble(txtValor.getText());
+					String monedaEntrada = (String) comboEntrada.getSelectedItem();
+					String monedaSalida = (String) comboSalida.getSelectedItem();
+					double resultado = Calculo.tipoDeConversion(valor, monedaEntrada, monedaSalida);
+					txtResultado.setText("");
+					txtResultado.setText(String.valueOf(Math.round(resultado * 10000) / 10000d));
+				} else {
+					txtResultado.setText("ingrese valores numericos");
 				}
 			}
 		});
