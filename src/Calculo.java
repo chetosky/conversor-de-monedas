@@ -1,9 +1,13 @@
-
+//CLASE DESDE LA QUE SE REALIZAN LOS CALCULOS DE LAS CONVERSIONES DE ACUERDO AL TIPO DE CONVERSION
 public class Calculo {
 
-	private static String[][] moneda = { { "USD-Dolar", "1", "1" }, { "CRC-Colon", "0.0018", "561.80" },
-			{ "EUR-Euro", "1.06", "0.94" }, { "GBP-Libra", "1.2", "0.83" }, { "JPY-Yen", "0.0073", "136.35" },
-			{ "KRW-Won surcoreano", "0.00076", "1311.57" } };
+	// VARIABLES ARRAY BIDIMENSIONALES PARA DEFINIR LOS PARAMETROS DE LA CONVERSION
+
+	// VARIABLE MONEDA ALMACENA NOMBRE QUE SE MUESTRA DE LA MONEDA Y SU ABREVIATURA
+	private static String[][] moneda = { { "USD-Dolar", "USD" }, { "CRC-Colon", "CRC" }, { "EUR-Euro", "EUR" },
+			{ "GBP-Libra", "GBP" }, { "JPY-Yen", "JPY" }, { "KRW-Won surcoreano", "KRW" } };
+
+	// VARIABLES DISTANCIA, MASA Y VOLUMEN ALMACENAN EL NOMBRE QUE SE MUESTRA DE LA MEDIDA
 	private static String[][] distancia = { { "CM-Centimetro", "0.01", "100" }, { "M-metro", "1", "1" },
 			{ "KM-Kilometro", "1000", "0.001" }, { "PUL-Pulgada", "0.0254", "39.3700930709" },
 			{ "PIE-Pie", "0.3048", "3.2808410892" }, { "MI-Milla", "1852", "0.000539957" } };
@@ -12,15 +16,15 @@ public class Calculo {
 	private static String[][] volumen = { { "ML-mililitro", "0.001", "1000" }, { "L-Litro", "1", "1" },
 			{ "GAL-galon", "3.78541", "0.264172" }, { "OZ-Onza", "0.0295735", "33.814" } };
 
-	// Determinamos el tipo de conversion (cinfirmando primero si el valor de
-	// entrada es igual al de salida)
+	// SE DETERMINA EL TIPO DE CONVERSION Y SE PASAN LOS PARAMETROS
 	public static double tipoDeConversion(double valor, String valorEntrada, String valorSalida) {
+		// PRIMERO VERIFICAMOS SI EL VALOR DE ENTRADA Y SALIDA ES EL MISMO
 		if (valorEntrada == valorSalida) {
 			return valor;
 		} else {
 			switch (Medidas.seleccion) {
 			case "Moneda":
-				return convertir(valor, valorEntrada, valorSalida, moneda);
+				return convertirMonedas(valor, valorEntrada, valorSalida);
 			case "Distancia":
 				return convertir(valor, valorEntrada, valorSalida, distancia);
 			case "Masa":
@@ -35,6 +39,7 @@ public class Calculo {
 		}
 	}
 
+	//FUNCION PARA CONVERTIR DISTANCIA, MASA O VOLUMEN
 	private static double convertir(double valor, String entrada, String salida, String[][] calculo) {
 		double valorEntrada = 0;
 		double valorSalida = 0;
@@ -53,13 +58,40 @@ public class Calculo {
 		}
 		return valorSalida;
 	}
-	
+
+	//FUNCION PARA CONVERTIR TEMPERATURA
 	private static double temperatura(double valor, String entrada) {
-		if (entrada=="C°-Celsius") {
+		if (entrada == "C°-Celsius") {
 			return 9.0 / 5.0 * valor + 32;
-		}
-		else {
+		} else {
 			return (valor - 32) * 5.0 / 9.0;
 		}
 	}
+
+	// AQUI INICIA LA CONVERSION DE MONEDAS
+	
+	//PRIMERO SE DEFINE LA MONEDA DE ENTRADA Y DE SALIDA Y SE ALMACENA EN UN ARRAY
+	private static String[] definirMonedas(String entrada, String salida) {
+		String[] cambio = { "USD", "USD" };
+		for (int i = 0; i < moneda[i].length; i++) {
+			if (entrada == moneda[i][0]) {
+				cambio[0] = moneda[i][1];
+				break;
+			}
+		}
+		for (int i = 0; i < moneda[i].length; i++) {
+			if (salida == moneda[i][0]) {
+				cambio[1] = moneda[i][1];
+				break;
+			}
+		}
+		return cambio;
+	}
+
+	//LLAMADA AL API DESDE LA CLASE ConversorDeMonedasApi
+	private static double convertirMonedas(double valor, String entrada, String salida) {
+		String[] monedas = definirMonedas(entrada, salida);
+		return ConversorDeMonedasApi.conversor(monedas, valor);
+	}
+
 }
